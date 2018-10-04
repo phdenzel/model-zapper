@@ -1,0 +1,40 @@
+#+TITLE: model-zapper
+#+AUTHOR: phdenzel
+
+*** Install
+
+    To properly install ~modelzapper.py~, first run ~configure~ in the root
+    directory of the repo.
+    #+BEGIN_SRC shell
+      ./configure
+    #+END_SRC
+    This will download the isolated ~glass~ source code into ~src~, compile it,
+    and move the build into ~libs~ and ~includes~ directories.
+    If ~glass~ was compiled without errors, ~modelzapper.py~ should be able to
+    run as
+    #+BEGIN_SRC shell
+      python modelzapper.py [gls.state]
+    #+END_SRC
+
+*** Build the app
+
+    ...
+
+*** Requirements
+    
+    The app relies on several python modules which are installable via ~pip~.
+    Since the app interfaces with ~glass~, a runnable version of ~glass~ is
+    essential.
+
+    - [[https://github.com/phdenzel/glass][glass]]
+    - numpy
+    - scipy
+    - Tkinter
+    - PIL
+    - matplotlib
+
+*** More
+
+    Since it is not really easy to install ~glass~, let alone automatically,
+    chances are that the app might have problemn.
+    If so, try building it yourself.

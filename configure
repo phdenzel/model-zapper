@@ -1,0 +1,33 @@
+#!/bin/bash
+ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+echo "Currently in $ROOT";
+set -x;
+mkdir -p $ROOT/src
+
+# Download external libs
+if [ ! -d "$ROOT/src/glass" ]; then
+    mkdir -p $ROOT/src/glass;
+    git clone --depth=1 --branch=master git@github.com:phdenzel/glass.git $ROOT/src/glass/;
+    rm -rf $ROOT/src/glass/.git;
+fi;
+
+
+# Build glass
+if [ ! -d "$ROOT/src/glass/build" ]; then
+    cd $ROOT/src/glass && make && make
+fi;
+
+# Move builds into glass/libs & glass/includes
+mkdir -p $ROOT/includes/glpk;
+if [ -d "$ROOT/src/glass/build/glpk_build/lib" ]; then
+    cp -r $ROOT/src/glass/build/glpk_build/lib/* $ROOT/includes/glpk/
+fi;
+mkdir -p $ROOT/libs/glass;
+glass_build=$(ls -d $ROOT/src/glass/build/lib*/glass)
+if [ -d "$glass_build" ]; then
+    cp -r $glass_build $ROOT/libs/glass/
+fi;
+python_glpk_build=$(ls -d $ROOT/src/glass/build/python-glpk/lib*/glpk)
+if [ -d "$python_glpk_build" ]; then
+    cp -r $python_glpk_build $ROOT/libs/
+fi;
