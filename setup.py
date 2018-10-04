@@ -8,18 +8,18 @@ from setuptools import setup
 
 
 APP = ['modelzapper.py']
-DATAFILES = [('', ['imgs']), ('', ['libs']), ('', ['includes'])]
 INFO = dict(name='ModelZapper',
             description='Model inspector for GLASS state files',
             author='Philipp Denzel',
             author_email='phdenzel@gmail.com',
             version='1.0')
-OPTIONS = {'iconfile': 'imgs'}
+DATAFILES = [('', ['imgs'])]
+OPTIONS = {'iconfile': 'imgs/zapper.icns',
+           'argv_emulation': True}
 
 setup(
     app=APP,
     data_files=DATAFILES,
-    options=OPTIONS,
+    options={'py2app': OPTIONS},
     setup_requires=["py2app"],
-    **INFO
 )
