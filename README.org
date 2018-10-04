@@ -8,8 +8,14 @@
     #+BEGIN_SRC shell
       ./configure
     #+END_SRC
-    This will download the isolated ~glass~ source code into ~src~, compile it,
-    and move the build into ~libs~ and ~includes~ directories.
+    This will set up a virtual python environment and download all required
+    libraries.
+    After the environment and required libraries are downloaded, use ~install~
+    #+BEGIN_SRC shell
+      ./install
+    #+END_SRC
+    This will compile the ~glass~ source code into ~src~, and move the build
+    into ~libs~ and ~includes~ directories.
     If ~glass~ was compiled without errors, ~modelzapper.py~ should be able to
     run as
     #+BEGIN_SRC shell
@@ -18,7 +24,12 @@
 
 *** Build the app
 
-    ...
+    Once you configured and installed ~modelzapepr.py~, building the app is
+    easy! Enter the virtual environment and run ~py2app~
+    #+BEGIN_SRC shell
+      source venv/bin/activate
+      python setup.py py2app
+    #+END_SRC
 
 *** Requirements
     
@@ -27,6 +38,7 @@
     essential.
 
     - [[https://github.com/phdenzel/glass][glass]]
+    - virtualenv
     - numpy
     - scipy
     - Tkinter
@@ -37,4 +49,6 @@
 
     Since it is not really easy to install ~glass~, let alone automatically,
     chances are that the app might have problemn.
-    If so, try building it yourself.
+    If so, try building it yourself. In order to be able to build the app though,
+    ~python~ must be installed as a framework.
+    For more details see [[https://github.com/phdenzel/local-python-install][https://github.com/phdenzel/local-python-install]].
