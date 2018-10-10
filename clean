@@ -3,6 +3,8 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "Currently in $ROOT";
 set -x;
 
+rm $ROOT/activate;
+chmod u+x $ROOT/activate;
 for f in $ROOT/{build,dist,includes,libs,src,venv}; do
     [ -d "$f" ] && rm -r "$f"
 done;

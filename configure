@@ -13,6 +13,7 @@ fi;
 
 # Set up virtual environment
 virtualenv venv;
+ln -s $ROOT/venv/bin/activate $ROOT/activate;
 # Install requirements in the virtual environment
 if [ -d "$ROOT/venv" ]; then
     source $ROOT/venv/bin/activate;

@@ -9,24 +9,35 @@ Usage:
 # Imports
 import sys
 import os
+# import rumps
+# rumps.debug_mode(True)
 
-libspath = '/'.join([sys.path[0], 'libs'])
-libs = os.listdir(libspath)[::-1]
-for l in libs:
-    sys.path.insert(2, '/'.join([libspath, l]))
+app_root = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+libspath = os.path.join(app_root, 'libs')
+if os.path.exists(libspath):
+    libs = os.listdir(libspath)[::-1]
+    for l in libs:
+        lib = os.path.join(libspath, l)
+        if lib not in sys.path:
+            sys.path.insert(2, lib)
 
-includespath = '/'.join([sys.path[0], 'libs'])
-includes = os.listdir(includespath)[::-1]
-if 'LD_LIBRARY_PATH' in os.environ:
+includespath = os.path.join(app_root, 'includes')
+if os.path.exists(includespath):
+    includes = os.listdir(includespath)[::-1]
     for i in includespath:
-        os.environ['LD_LIBRARY_PATH'] += ':'+'/'.join([includespath, i])
-else:
-    for i in includespath:
-        os.environ['LD_LIBRARY_PATH'] = '/'.join([includespath, i])
+        inc = os.path.join(includespath, i)
+        if 'LD_LIBRARY_PATH' in os.environ:
+            if inc not in os.environ['LD_LIBRARY_PATH']:
+                os.environ['LD_LIBRARY_PATH'] += ':'+inc
+        else:
+            os.environ['LD_LIBRARY_PATH'] = inc
 
 import warnings
 import numpy as np
+import matplotlib
+matplotlib.use("TkAgg")
 from matplotlib import pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 from PIL import Image, ImageTk
 if sys.version_info.major < 3:
     import Tkinter as tk
@@ -39,11 +50,10 @@ elif sys.version_info.major == 3:
 else:
     raise ImportError("Could not import Tkinter")
 
-print(sys.argv)
 from glass.command import command
 
-# setup
-warnings.filterwarnings("ignore", module="matplotlib")
+# # setup
+# warnings.filterwarnings("ignore", module="matplotlib")
 
 
 class Zapp(tk.Frame, object):
@@ -87,9 +97,14 @@ class Zapp(tk.Frame, object):
         # Tk initializations
         tk.Frame.__init__(self, master, name=name, **kwargs)
         self.master.title('Zapp')
+        # TODO
+        self.print_window = tk.Toplevel(self.master)
+        self.print_text = tk.Label(self.print_window, width=150, fg='black')
+        self.print_text.grid(sticky=tk.N+tk.W+tk.S+tk.E)
+        # END TODO
         self.master.protocol('WM_DELETE_WINDOW', self._on_close)
         self.canvas = tk.Canvas(self, name='canvas', borderwidth=0, highlightthickness=0,
-                                width=600, height=500, **kwargs)
+                                width=650, height=500, **kwargs)
         self.img_buffer = None
 
         # Sidebar buttons, entry boxes, and other stuff
@@ -249,9 +264,8 @@ class Zapp(tk.Frame, object):
 
         # set up the menu
         def dummy():
-            filewin = tk.Toplevel(self.master)
-            button = tk.Button(filewin, text="dummy action")
-            button.pack()
+            text="{}".format("\n".join(sys.path))
+            self.print_text.configure(text=text)
         self.menubar = tk.Menu(self.master, tearoff=0, activeborderwidth=0)
 
         self.filemenu = tk.Menu(self.menubar, tearoff=0, activeborderwidth=0)
@@ -980,6 +994,41 @@ class Zapp(tk.Frame, object):
         }
         return map_properties[model_property]
 
+    def model_image_orig(self):
+        """
+        Get the current model image based on model_index, obj_index, and model_map
+        """
+        # # TODO
+        # text = " - ".join([str(self.gls),
+        #                    str(self.model_index),
+        #                    str(self.obj_index),
+        #                    str(self.model_property),
+        #                    "\n",
+        #                    # str(img),
+        #                    # "\n",
+        #                    # "\n".join([str(x) for x in img.getdata() if sum(x)>0])
+        # ])
+        # self.print_text.configure(text=text)
+        # # END TODO
+        if not self.gls:
+            img = Image.new('RGB', (500, 500))
+        elif (self.model_index, self.obj_index, self.model_property) in self._img_copy:
+            img = self._img_copy[(self.model_index, self.obj_index, self.model_property)]
+        else:
+            g = self.gls[self.g_index]
+            model = self.models()[self.model_index]
+            func, kwargs = self.model_function(g, self.model_property)
+            # sys.stdout = open(os.devnull, "w")
+            func(model, obj_index=self.obj_index, **kwargs)
+            # sys.stdout = sys.__stdout__
+            plt.tight_layout(h_pad=1)
+            canvas = plt.get_current_fig_manager().canvas
+            canvas.draw()
+            img = Image.frombytes('RGB', canvas.get_width_height(),
+                                  canvas.tostring_rgb())
+            plt.clf()
+        return img
+
     def model_image(self):
         """
         Get the current model image based on model_index, obj_index, and model_map
@@ -992,16 +1041,56 @@ class Zapp(tk.Frame, object):
             g = self.gls[self.g_index]
             model = self.models()[self.model_index]
             func, kwargs = self.model_function(g, self.model_property)
-            sys.stdout = open(os.devnull, "w")
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
             func(model, obj_index=self.obj_index, **kwargs)
-            sys.stdout = sys.__stdout__
-            plt.tight_layout(h_pad=1)
-            canvas = plt.get_current_fig_manager().canvas
-            canvas.draw()
-            img = Image.frombytes('RGB', canvas.get_width_height(),
-                                  canvas.tostring_rgb())
-            plt.clf()
-        return img
+            fig_cvs_agg = FigureCanvasAgg(fig)
+            renderer = fig_cvs_agg.get_renderer()
+            wh = tuple(int(d) for d in renderer.get_canvas_width_height())
+            text = " - ".join([str(self.gls),
+                               str(self.model_index),
+                               str(self.obj_index),
+                               str(self.model_property),
+                               "\n",
+                                str(func),
+                               str(kwargs),
+                               "\n",
+                               str(fig),
+                               str(ax),
+                               "\n",
+                               str(fig_cvs_agg),
+                               str(renderer),
+                               str(wh)
+            ])
+            self.print_text.configure(text=text)
+            # fig_cvs_agg.draw()
+            # try:
+            #     fig_cvs_agg.draw()
+            # except:
+            #     text = " - ".join([str(self.gls),
+            #                        str(self.model_index),
+            #                        str(self.obj_index),
+            #                        str(self.model_property),
+            #                        "\n",
+            #                        str(func),
+            #                        str(kwargs),
+            #                        "\n",
+            #                        str(fig),
+            #                        str(ax),
+            #                        "\n",
+            #                        str(fig_cvs_agg),
+            #                        str(renderer),
+            #                        "\n",
+            #                        str(wh),
+            #                        str(renderer),
+            #                        str(renderer._renderer)
+            #     ])
+            #     self.print_text.configure(text=text)
+            # img = Image.frombytes('RGB', wh, fig_cvs_agg.tostring_rgb())
+            # plt.clf()
+        # return img
+            
+        
 
     def add_image(self, image, verbose=False):
         """
@@ -1027,7 +1116,7 @@ class Zapp(tk.Frame, object):
         if image is not None:
             pos = (0, 0)
             image = image.resize((self.canvas.winfo_width(), self.canvas.winfo_height()))
-            self.img_buffer = ImageTk.PhotoImage(image=image)
+            self.img_buffer = ImageTk.PhotoImage(master=self.canvas, image=image)
             self.canvas.create_image(*pos, image=self.img_buffer, anchor=tk.NW)
         # add tag indication
         if self.model_index in self.model_selection:

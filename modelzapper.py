@@ -4,32 +4,40 @@
 Use glass to read glass .state and zap through the models
 
 Usage:
-    import setenv_gls
+    python modelzapper.py [gls.state]
 """
 import sys
 import os
 
-libspath = '/'.join([sys.path[0], 'libs'])
-libs = os.listdir(libspath)[::-1]
-for l in libs:
-    sys.path.insert(2, '/'.join([libspath, l]))
+app_root = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+libspath = os.path.join(app_root, 'libs')
+if os.path.exists(libspath):
+    libs = os.listdir(libspath)[::-1]
+    for l in libs:
+        lib = os.path.join(libspath, l)
+        if lib not in sys.path:
+            sys.path.insert(2, lib)
 
-includespath = '/'.join([sys.path[0], 'libs'])
-includes = os.listdir(includespath)[::-1]
-if 'LD_LIBRARY_PATH' in os.environ:
+includespath = os.path.join(app_root, 'includes')
+if os.path.exists(includespath):
+    includes = os.listdir(includespath)[::-1]
     for i in includespath:
-        os.environ['LD_LIBRARY_PATH'] += ':'+'/'.join([includespath, i])
-else:
-    for i in includespath:
-        os.environ['LD_LIBRARY_PATH'] = '/'.join([includespath, i])
+        inc = os.path.join(includespath, i)
+        if 'LD_LIBRARY_PATH' in os.environ:
+            if inc not in os.environ['LD_LIBRARY_PATH']:
+                os.environ['LD_LIBRARY_PATH'] += ':'+inc
+        else:
+            os.environ['LD_LIBRARY_PATH'] = inc
 
 import getopt
 import traceback
 from app import Zapp
+
 from glass.command import command, Commands
 from glass.environment import env, Environment
 from glass.exmass import *
 from glass.exceptions import GLInputError
+
 _omp_opts = None
 
 
@@ -62,7 +70,6 @@ def _detect_cpus():
             return ncpus
     # Default
     return 1
-
 
 def _detect_omp():
     global _omp_opts
@@ -106,7 +113,6 @@ if __name__ == "__main__":
     import glass.scales
     if Environment.global_opts['withgfx']:
         import glass.plots
-
 
     glass_basis('glass.basis.pixels', solver=None)
     exclude_all_priors()
