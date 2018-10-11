@@ -1,10 +1,18 @@
-#+TITLE: model-zapper
+#+TITLE: ModelZapper
 #+AUTHOR: phdenzel
+
+Generally, ~modelzapper.py~ should be runnable without installation.
+Just make sure to properly add the glass paths to the ~PYTHONPATH~
+(for an example see: [[https://github.com/phdenzel/glass/blob/master/setenv][setenv]]) before running
+#+BEGIN_SRC shell
+  python modelzapper.py
+#+END_SRC
 
 *** Install
 
-    To properly install ~modelzapper.py~, first run ~configure~ in the root
-    directory of the repo.
+    To properly install ~modelzapper.py~ (in order to build the app yourself
+    or to run the app within a virtual python environment), first run
+    ~configure~ in the root directory of the repo.
     #+BEGIN_SRC shell
       ./configure
     #+END_SRC
@@ -24,31 +32,45 @@
 
 *** Build the app
 
-    Once you configured and installed ~modelzapepr.py~, building the app is
-    easy! Enter the virtual environment and run ~py2app~
+    Once you configured and installed ~modelzapper.py~, building the app is
+    easy! Enter the virtual environment and run ~py2app~ with
     #+BEGIN_SRC shell
-      source venv/bin/activate
+      source activate
       python setup.py py2app
     #+END_SRC
+    or alternatively use
+    #+BEGIN_SRC shell
+      ./rebuild
+    #+END_SRC
+    After the command(s) finish, you should find two new directories in your repo,
+    ~dist~ and ~build~. In ~dist~ you'll find your standalone macOS app that is
+    ready to be double-clicked.
 
 *** Requirements
     
-    The app relies on several python modules which are installable via ~pip~.
+    To build the app yourself, you need a Python framework with an integrated
+    Tkinter library (or linked to Tcl/Tk frameworks).
+    The app relies on several python modules which are installable via e.g. ~pip~.
     Since the app interfaces with ~glass~, a runnable version of ~glass~ is
     essential.
+    To summarize (also see requirements.txt):
 
+    - Python framework (==2.7)
+    - Tkinter (built-in or linked to Tcl and Tk frameworks (>= 8.6))
     - [[https://github.com/phdenzel/glass][glass]]
     - virtualenv
     - numpy
     - scipy
-    - Tkinter
-    - PIL
     - matplotlib
+    - PIL
 
 *** More
 
     Since it is not really easy to install ~glass~, let alone automatically,
-    chances are that the app might have problemn.
+    chances are you might have problems running the app.
     If so, try building it yourself. In order to be able to build the app though,
     ~python~ must be installed as a framework.
-    For more details see [[https://github.com/phdenzel/local-python-install][https://github.com/phdenzel/local-python-install]].
+    It is also recommended to install a newer Tcl/Tk framework than the one from
+    the macOS system.
+    For more details see [[https://github.com/phdenzel/local-python-install][https://github.com/phdenzel/local-python-install]]
+    (try installing the frameworks in standard locations though, e.g. ~/Library/Frameworks/~).

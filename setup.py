@@ -11,7 +11,7 @@ APP = ['modelzapper.py']
 PLIST = dict(CFBundleName='ModelZapper',
              CFBundleDisplayName='ModelZapper',
              CFBundleGetInfoString='Model inspector for GLASS state files',
-             CFBundleIdentifier='com.pythonmac.modelzapper',
+             CFBundleIdentifier='org.pythonmac.modelzapper',
              author_email='phdenzel@gmail.com',
              CFBundleVersion='0.1.0',
              CFBundleShortVersionString='0.1.0',
@@ -22,8 +22,12 @@ DATAFILES = [('', ['imgs']),
              ('', ['libs']),
              ('', ['includes']),
 ]
-PACKAGES = ['PIL',
-            'matplotlib',
+PACKAGES = [
+    'numpy',
+    'matplotlib',
+    'scipy',
+    'PIL',
+            
 ]
 OPTIONS = {'iconfile': 'imgs/zapper.icns',
            'plist': PLIST,

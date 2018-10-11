@@ -15,7 +15,7 @@ if os.path.exists(libspath):
     libs = os.listdir(libspath)[::-1]
     for l in libs:
         lib = os.path.join(libspath, l)
-        if lib not in sys.path:
+        if lib not in sys.path or not any(['glass' in p for p in sys.path]):
             sys.path.insert(2, lib)
 
 includespath = os.path.join(app_root, 'includes')
@@ -29,9 +29,9 @@ if os.path.exists(includespath):
         else:
             os.environ['LD_LIBRARY_PATH'] = inc
 
+from app import Zapp
 import getopt
 import traceback
-from app import Zapp
 
 from glass.command import command, Commands
 from glass.environment import env, Environment

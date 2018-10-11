@@ -1,5 +1,6 @@
 #!/bin/bash
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+FLAGS="--no-strip --matplotlib-backends 'tkagg'"
 echo "Currently in $ROOT";
 set -x;
 
@@ -10,4 +11,6 @@ done;
 
 source $ROOT/activate
 
-python setup.py py2app $1  # --no-strip --force-system-tk
+python setup.py py2app ${FLAGS} $1
+
+set +x;
