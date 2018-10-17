@@ -685,7 +685,7 @@ class Zapp(tk.Frame, object):
             self.model_selection.update([selected])
         self.load_image()
 
-    def open(self, event=None, name='filtered.state'):
+    def open(self, name='filtered.state'):
         """
         Open a state file for zapping
         """
@@ -697,8 +697,9 @@ class Zapp(tk.Frame, object):
             self.gls.remove(state)
             self.gls.append(state)
         self.grid_forget()
-        self.__init__(self.master, gls_states=self.gls, selection=self.model_selection)
         self.clear_buffer(all_=True)
+        self.clear_selection(all_=True)
+        self.__init__(self.master, gls_states=self.gls, selection=self.model_selection)
         self.load_image()
 
     def open_as(self):
@@ -708,6 +709,11 @@ class Zapp(tk.Frame, object):
         fin = filedialog.askopenfilename(parent=self.master, defaultextension=".state")
         if fin:
             self.open(name=fin)
+
+    def open_state(self):
+        """
+        """
+        pass
 
     def load(self, event=None, name="model_selection.dat"):
         """
@@ -909,22 +915,36 @@ class Zapp(tk.Frame, object):
         if img:
             self._img_buffer[(self.model_index, self.obj_index, self.model_property)] = img
 
-    def clear_selection(self):
+    def clear_selection(self, all_=False):
         """
         Clear the model selection
 
-        Args/Kwargs/Return:
+        Args:
+            None
+
+        Kwargs:
+            all_ <bool> - clear everything, including selection of current obj_index
+
+        Return:
             None
         """
-        img = self._img_copy[(self.model_index, self.obj_index, self.model_property)]
         self.model_selection = set([])
-        self.load_image(image=img)
+        if not all_:
+            img = self._img_copy[
+                (self.model_index, self.obj_index, self.model_property)]
+            self.load_image(image=img)
 
     def clear_buffer(self, all_=False):
         """
         Clear the buffer containing the calculated images (current state is preserved)
 
-        Args/Kwargs/Return:
+        Args:
+            None
+
+        Kwargs:
+            all_ <bool> - clear everything, including selection of current obj_index
+
+        Return:
             None
         """
         if not all_:

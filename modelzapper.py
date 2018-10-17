@@ -122,4 +122,6 @@ if __name__ == "__main__":
     states = [loadstate(f) for f in opts[1:]]
 
     root, zapper = Zapp.init(gls_states=states, verbose=1)
+    root.createcommand("::tk::mac::OpenDocument", zapper.open)
+    os.system('''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of process "ModelZapper" to true' ''')
     zapper.display()

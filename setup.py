@@ -8,16 +8,34 @@ import os
 from setuptools import setup
 
 APP = ['modelzapper.py']
-PLIST = dict(CFBundleName='ModelZapper',
-             CFBundleDisplayName='ModelZapper',
-             CFBundleGetInfoString='Model inspector for GLASS state files',
-             CFBundleIdentifier='org.pythonmac.modelzapper',
-             author_email='phdenzel@gmail.com',
-             CFBundleVersion='0.1.0',
-             CFBundleShortVersionString='0.1.0',
-             NSHumanReadableCopyright=u"Copyright \u00A9 2018, Philipp Denzel, All Rights Reserved",
-             LSBackgroundOnly=False,
-)
+PLIST = {
+    'CFBundleName': "ModelZapper",
+    'CFBundleDisplayName': "ModelZapper",
+    'CFBundleGetInfoString': "Model inspector for GLASS state files",
+    'CFBundleIdentifier': "com.phdsystems.model-zapper",
+    'CFBundleVersion': "0.1.0",
+    'CFBundleShortVersionString': "0.1.0",
+    'author_email': "phdenzel@gmail.com",
+    
+    
+    'CFBundleDocumentTypes': [{
+        'CFBundleTypeName': "state",
+        'CFBundleTypeRole': "Editor",
+        'LSHandlerRank': "Owner",
+        'LSItemContentTypes': ["com.phdsystems.state"],
+    }],
+
+    'UTExportedTypeDeclarations': [{
+        'UTTypeConformsTo': ["public.data"],
+        'UTTypeIdentifier': "com.phdsystems.state",
+        'UTTypeDescription': "state",
+        'UTTypeTagSpecification': {
+            'public.filename-extension': "state"}
+    }],
+
+    'NSHumanReadableCopyright': u"Copyright \u00A9 2018, Philipp Denzel, All Rights Reserved"
+}
+
 DATAFILES = [('', ['imgs']),
              ('', ['libs']),
              ('', ['includes']),
@@ -29,7 +47,8 @@ PACKAGES = [
     'PIL',
             
 ]
-OPTIONS = {'iconfile': 'imgs/zapper.icns',
+OPTIONS = {'iconfile': "imgs/zapper.icns",
+           'argv_emulation': True,
            'plist': PLIST,
            'packages': PACKAGES,
 }
