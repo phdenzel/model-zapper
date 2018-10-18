@@ -5,6 +5,11 @@ Use glass to read glass .state in 'GLASS mode' and show individual models one by
 
 Usage:
     python model_zapper.py [gls.state]
+
+TODO:
+    - perform tests and decide whether it's better to flush the buffer permanently
+    - find easy way to generally fix styling differences with different macOS versions
+    - perform virtualbox tests on different OSs
 """
 # Imports
 import sys
@@ -258,28 +263,27 @@ class Zapp(tk.Frame, object):
         self.limits['H0_max'].bind("<Return>", self._on_H0filter)
 
         # set up the menu
-        def dummy():
-            text="{}".format("\n".join(sys.path))
-            self.print_text.configure(text=text)
         self.menubar = tk.Menu(self.master, tearoff=0, activeborderwidth=0)
-
         self.filemenu = tk.Menu(self.menubar, tearoff=0, activeborderwidth=0)
         self.filemenu.add_command(label="Open...", command=self.open_as)
         self.filemenu.add_command(label="Load selection...", command=self.load_as)
-        self.filemenu.add_command(label="Save selection", command=self.save)
+        # self.filemenu.add_command(label="Save selection", command=self.save)
         self.filemenu.add_command(label="Save selection as...", command=self.save_as)
-        self.filemenu.add_command(label="Write state", command=self.write)
+        # self.filemenu.add_command(label="Write state", command=self.write)
         self.filemenu.add_command(label="Write state as...", command=self.write_as)
-        self.filemenu.add_command(label="Clear All", command=dummy)
-        self.filemenu.add_command(label="Clear", command=dummy)
+        self.filemenu.add_command(label="Clear", command=self.clear_selection)
+        self.filemenu.add_command(label="Clear All", command=self.clear_all)
         self.filemenu.add_command(label="Exit", command=self._on_close)
         self.menubar.add_cascade(label="File", menu=self.filemenu)
 
         self.helpmenu = tk.Menu(self.menubar, tearoff=0, activeborderwidth=0)
-        self.helpmenu.add_command(label="Help", command=dummy)
-        self.helpmenu.add_command(label="About...", command=dummy)
+        self.helpmenu.add_command(label="Help", command=self.help_link)
+        self.helpmenu.add_command(label="About...", command=self.about)
         self.menubar.add_cascade(label="Help", menu=self.helpmenu)
         self.helpmenu.configure(borderwidth=0, font=16)
+
+        # Connect to Apple Finder events
+        self.master.createcommand("::tk::mac::OpenDocument", self.open)
 
         self.master.configure(menu=self.menubar)
 
@@ -289,7 +293,7 @@ class Zapp(tk.Frame, object):
     @classmethod
     def init(cls, gls_states=[], verbose=False):
         """
-        From files initialize a Zapper instance
+        From files initialize a Zapper instance together with it's tk root
 
         Args:
             None
@@ -313,8 +317,29 @@ class Zapp(tk.Frame, object):
     def __repr__(self):
         return self.__str__()
 
+    def help_link(self):
+        """
+        Follow the help URL to the GitHub wiki page
+        """
+        import webbrowser
+        helpurl = "https://github.com/phdenzel/model-zapper/blob/master/README.org"
+        webbrowser.open(helpurl, new=0)
+
+    def about(self):
+        """
+        """
+        filewin = tk.Toplevel(self.master)
+        about_msg = "\n".join([
+            "powered by",
+            self.glsdoc,
+        ])
+        title = tk.Label(filewin, text="ModelZapper", font=("Deja Vu Sans", 28))
+        msg = tk.Label(filewin, text=about_msg, font=("Deja Vu Sans", 14))
+        title.grid(sticky=tk.N+tk.E+tk.S+tk.W)
+        msg.grid(sticky=tk.N+tk.E+tk.S+tk.W)
+
     @property
-    def doc(self):
+    def glsdoc(self):
         if self.gls:
             return self.gls[self.g_index].meta_info['glheader'].replace('\n', '\t')
         else:
@@ -953,6 +978,18 @@ class Zapp(tk.Frame, object):
         self._img_buffer = {}
         if not all_:
             self.load_image(image=img)
+
+    def clear_all(self):
+        """
+        Clear the entire app from any input
+
+        Args/Kwargs/Return:
+            None
+        """
+        self.clear_buffer(all_=True)
+        self.clear_selection(all_=True)
+        root = self.master
+        self.__init__(self, root)
 
     def model_function(self, g, model_property):
         """

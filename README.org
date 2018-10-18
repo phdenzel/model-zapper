@@ -1,8 +1,25 @@
 #+TITLE: ModelZapper
 #+AUTHOR: phdenzel
 
+ModelZapper is a supplementary app to [[https://github.com/jpcoles/glass][GLASS]] which can inspect, analyze, and
+filter GLASS "states".
+Free-form gravitational lens modelling techniques which are used in GLASS,
+generally try to deal with the mass-sheet degeneracy (an intrinsic problem in
+gravitational lens modelling) by exploring the solution space in a Monte-Carlo
+sampling approach. Every lens model is therefore built out of many different
+models that solve the lens equation with the given priors.
+Such an /ensemble model/ usually looks fine on average, but not all models in
+the ensemble might be valid or realistic solutions to the observed lens.
+This is where ModelZapper comes in. With this app, one can manually go through
+the GLASS ensemble and select realistic models, filter out the unrealistic
+solutions, and save the filtered ensemble in a new GLASS state.
+
+Binaries can be directly downloaded [[https://github.com/phdenzel/model-zapper/releases][here]] (currently only for macOS).
+
+** Setup
+
 Generally, ~modelzapper.py~ should be runnable without installation.
-Just make sure to properly add the glass paths to the ~PYTHONPATH~
+Just make sure to properly add the pre-installed glass paths to the ~PYTHONPATH~
 (for an example see: [[https://github.com/phdenzel/glass/blob/master/setenv][setenv]]) before running
 #+BEGIN_SRC shell
   python modelzapper.py
@@ -25,7 +42,7 @@ Just make sure to properly add the glass paths to the ~PYTHONPATH~
     This will compile the ~glass~ source code into ~src~, and move the build
     into ~libs~ and ~includes~ directories.
     If ~glass~ was compiled without errors, ~modelzapper.py~ should be able to
-    run as
+    run (without setting any ~PYTHONPATH~ or ~PATH~) as
     #+BEGIN_SRC shell
       python modelzapper.py [gls.state]
     #+END_SRC
@@ -50,7 +67,8 @@ Just make sure to properly add the glass paths to the ~PYTHONPATH~
     
     To build the app yourself, you need a Python framework with an integrated
     Tkinter library (or linked to Tcl/Tk frameworks).
-    The app relies on several python modules which are installable via e.g. ~pip~.
+    The app relies on several python modules which are installable
+    via e.g. ~pip~.
     Since the app interfaces with ~glass~, a runnable version of ~glass~ is
     essential.
     To summarize (also see requirements.txt):
@@ -70,7 +88,8 @@ Just make sure to properly add the glass paths to the ~PYTHONPATH~
     chances are you might have problems running the app.
     If so, try building it yourself. In order to be able to build the app though,
     ~python~ must be installed as a framework.
-    It is also recommended to install a newer Tcl/Tk framework than the one from
-    the macOS system.
+    It is also recommended to install a newer Tcl/Tk framework than the one that
+    comes with the macOS system.
     For more details see [[https://github.com/phdenzel/local-python-install][https://github.com/phdenzel/local-python-install]]
-    (try installing the frameworks in standard locations though, e.g. ~/Library/Frameworks/~).
+    (try installing the frameworks in standard locations though,
+    e.g. ~/Library/Frameworks/~).
