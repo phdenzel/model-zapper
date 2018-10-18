@@ -65,6 +65,7 @@ class Zapp(tk.Frame, object):
     """
     Model zapper for GLASS states
     """
+    __version__ = "0.2.0"
     def __init__(self, master, gls_states=[], selection=None, **kwargs):
         """
         Initialize with reference to master Tk
@@ -280,12 +281,10 @@ class Zapp(tk.Frame, object):
         self.helpmenu.add_command(label="Help", command=self.help_link)
         self.helpmenu.add_command(label="About...", command=self.about)
         self.menubar.add_cascade(label="Help", menu=self.helpmenu)
-        self.helpmenu.configure(borderwidth=0, font=16)
-
-        # Connect to Apple Finder events
-        self.master.createcommand("::tk::mac::OpenDocument", self.open)
 
         self.master.configure(menu=self.menubar)
+        # Connect to Apple Finder events
+        self.master.createcommand("::tk::mac::OpenDocument", self.open)
 
         if verbose:
             print(self.__v__)
@@ -320,6 +319,9 @@ class Zapp(tk.Frame, object):
     def help_link(self):
         """
         Follow the help URL to the GitHub wiki page
+
+        Args/Kwargs/Return:
+            None
         """
         import webbrowser
         helpurl = "https://github.com/phdenzel/model-zapper/blob/master/README.org"
@@ -327,23 +329,58 @@ class Zapp(tk.Frame, object):
 
     def about(self):
         """
+        Show an About window for some infos and links
+
+        Args/Kwargs/Return:
+            None
         """
+        import webbrowser
         filewin = tk.Toplevel(self.master)
-        about_msg = "\n".join([
+        ffilewin = tk.Frame(filewin)
+        # enable resizing
+        ffilewin.grid(sticky=tk.N+tk.E+tk.S+tk.W)
+        filewin.columnconfigure(0, weight=1)
+        filewin.rowconfigure(0, weight=1)
+        ffilewin.columnconfigure(0, weight=1)
+        ffilewin.rowconfigure(1, weight=1)
+        # create widgets
+        title = tk.Label(ffilewin, text="ModelZapper", font=("Deja Vu Sans", 28))
+        # add logo to img buffer
+        if not hasattr(self, '_img_buffer'):
+            self._img_buffer = {}
+        self._img_buffer['logo'] = ImageTk.PhotoImage(
+            Image.open('imgs/zapper.iconset/icon_128x128.png'))
+        logo = tk.Label(ffilewin, image=self._img_buffer['logo'])
+        modelzapper_url = tk.Label(ffilewin, text=r"https://github.com/phdenzel/model-zapper",
+                                   fg='blue', cursor='pointinghand')
+        msg_text = "\n".join([
+            "ModelZapper Version {}".format(Zapp.__version__),
             "powered by",
-            self.glsdoc,
-        ])
-        title = tk.Label(filewin, text="ModelZapper", font=("Deja Vu Sans", 28))
-        msg = tk.Label(filewin, text=about_msg, font=("Deja Vu Sans", 14))
+            self.glsdoc])
+        msg = tk.Label(ffilewin, text=msg_text, font=("Deja Vu Sans", 14))
+        glass_url = tk.Label(ffilewin, text=r"https://github.com/jpcoles/glass",
+                             fg="blue", cursor="pointinghand")
+        statement = tk.Label(
+            ffilewin, text=u"Copyright \u00A9 2018, " \
+            + "Philipp Denzel <phdenzel@gmail.com>, " \
+            + "All Rights Reserved")
+        # place the widgets
         title.grid(sticky=tk.N+tk.E+tk.S+tk.W)
+        logo.grid(sticky=tk.N+tk.E+tk.S+tk.W)
+        modelzapper_url.grid(sticky=tk.N+tk.E+tk.S+tk.W)
         msg.grid(sticky=tk.N+tk.E+tk.S+tk.W)
+        glass_url.grid(sticky=tk.N+tk.E+tk.S+tk.W)
+        statement.grid(sticky=tk.N+tk.E+tk.S+tk.W)
+        # make actual links out of the url labels
+        modelzapper_url.bind("<Button-1>", lambda event: webbrowser.open(modelzapper_url['text'], new=0))
+        glass_url.bind("<Button-1>", lambda event: webbrowser.open(glass_url['text'], new=0))
 
     @property
     def glsdoc(self):
         if self.gls:
             return self.gls[self.g_index].meta_info['glheader'].replace('\n', '\t')
         else:
-            return self.__doc__
+            return "GLASS - A parallel, free-form gravitational lens modeling tool and framework"
 
     @property
     def tests(self):
@@ -986,10 +1023,10 @@ class Zapp(tk.Frame, object):
         Args/Kwargs/Return:
             None
         """
+        self.grid_forget()
         self.clear_buffer(all_=True)
         self.clear_selection(all_=True)
-        root = self.master
-        self.__init__(self, root)
+        self.__init__(self.master)
 
     def model_function(self, g, model_property):
         """

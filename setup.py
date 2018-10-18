@@ -13,8 +13,8 @@ PLIST = {
     'CFBundleDisplayName': "ModelZapper",
     'CFBundleGetInfoString': "Model inspector for GLASS state files",
     'CFBundleIdentifier': "com.phdsystems.model-zapper",
-    'CFBundleVersion': "0.1.0",
-    'CFBundleShortVersionString': "0.1.0",
+    'CFBundleVersion': "0.2.0",
+    'CFBundleShortVersionString': "0.2.0",
     'author_email': "phdenzel@gmail.com",
     
     
